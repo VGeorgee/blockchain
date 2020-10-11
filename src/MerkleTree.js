@@ -8,13 +8,9 @@ module.exports = {
         if(data.length % 2 != 0){
             data.push(data[data.length - 1])
         }
-        let leafNodes = []
 
-        data.forEach(element => {
-            leafNodes.push(this.createLeafNode(element))
-        })
+        let nodes = this.generateLeafNodes(data)
 
-        let nodes = leafNodes
         while(nodes.length != 1){
             if(nodes.length % 2 != 0){
                 nodes.push(nodes[nodes.length - 1])
@@ -30,23 +26,51 @@ module.exports = {
         return nodes[0]
     },
 
-    createLeafNode(transaction){
+    generateLeafNodes: function (transactions){
+        let leafNodes = []
+
+        transactions.forEach(element => {
+            leafNodes.push(this.createLeafNode(element))
+        })
+        return leafNodes
+    },
+
+    createLeafNode: function (transaction){
         return {
             hash: sha256(transaction),
             transaction
         }
     },
 
-    isLeafNode(node){
+    isLeafNode: function (node){
         return !!node.transaction
     },
 
-    createNode(leftNode, rightNode){
+    createNode: function (leftNode, rightNode){
         return {
             hash: sha256(leftNode.hash + rightNode.hash),
             left: leftNode,
             right: rightNode || leftNode
         }
     },
-    
+
+    verifyTransaction: function (tree, transaction) {
+        transaction = typeof transaction === 'string' ? transaction : JSON.stringify(transaction)
+        return this.calculateMerklePath(tree, transaction) === tree.hash
+    },
+
+    calculateMerklePath: function (tree, transaction){
+        if(this.isLeafNode(tree)){
+            return sha256(transaction) === tree.hash ? tree.hash : null
+        }
+        let hash = this.calculateMerklePath(tree.left, transaction)
+        if(hash){
+            return sha256(hash + tree.right.hash)
+        }
+        hash = this.calculateMerklePath(tree.right, transaction)
+        if(hash){
+            return sha256(tree.left.hash + hash)
+        }
+        return null   
+    }
 }
