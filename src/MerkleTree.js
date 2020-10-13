@@ -1,7 +1,4 @@
-let sha = require('js-sha256').sha256;
-let sha256 = (data) => {
-    return sha(sha(typeof data === 'string' ? data : JSON.stringify(data)))
-}
+let {sha256} = require('./utils')
 
 module.exports = {
     buildTree: function (data) {
