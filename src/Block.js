@@ -12,42 +12,59 @@ function isValidProof(proof, difficulty){
     return true
 }
 
-module.exports = class Block {
-    constructor() {
-        this.header = {
-            timestamp: Date.now(),
-            nonce: 0,
-            merkleRoot: 0,
-            difficulty: 0,
-            previousBlockHash: null
+module.exports = {
+    Block: class Block {
+        constructor(transactions, blockHeight = 0) {
+            this.header = {
+                timestamp: Date.now(),
+                nonce: 0,
+                merkleRoot: null,
+                difficulty: 0,
+                previousBlockHash: null,
+                blockHeight
+            }
+            this.merkleTree = null
+            this.headerHash = null
+            if(blockHeight !== 0) {
+                this.calculateTransactions(transactions)
+            }
         }
-        this.merkleTree = null
-        this.headerHash = null
-    }
-    calculateTransactions(transactions) {
-        this.merkleTree = MerkleTree.buildTree(transactions)
-        this.header.merkleRoot = this.merkleTree.hash
-    }
-    _createHeaderHash() {
-        this.headerHash = sha256(this.header)
-    }
-    _calculateProofOfWork(difficulty) {
-        if(!this.headerHash){
-            this._createHeaderHash()
+        calculateTransactions(transactions) {
+            this.merkleTree = MerkleTree.buildTree(transactions)
+            this.header.merkleRoot = this.merkleTree.hash
         }
-        while(!isValidProof(this.headerHash, difficulty || this.header.difficulty)){
-            this.header.nonce++
-            this._createHeaderHash()
+        _createHeaderHash() {
+            this.headerHash = sha256(this.header)
         }
-    }
-    getHash(){
-        if(!this.headerHash){
-            this._calculateProofOfWork()
+        _calculateProofOfWork(difficulty) {
+            if(!this.headerHash){
+                this._createHeaderHash()
+            }
+            while(!isValidProof(this.headerHash, difficulty || this.header.difficulty)){
+                this.header.nonce++
+                this._createHeaderHash()
+            }
         }
-        return this.headerHash
-    }
-    verifyTransaction(transaction){
-        return MerkleTree.verifyTransaction(this.merkleTree, transaction)
+        getHash(){
+            if(!this.headerHash){
+                this._calculateProofOfWork()
+            }
+            return this.headerHash
+        }
+        setPreviousHash(hash){
+            this.header.previousBlockHash = hash
+        }
+        verifyTransaction(transaction){
+            return MerkleTree.verifyTransaction(this.merkleTree, transaction)
+        }
+    },
+    createGenesis() {
+        console.log('Creating Genesis block');
+        let genesis = new module.exports.Block()
+        genesis.header.previousBlockHash = sha256('genesis' + Date.now())
+        genesis.calculateTransactions([{'Genesis': 'Block'}])
+        genesis.header.previousBlockHash = 0
+        console.log('Genesis block created');
+        return genesis
     }
 }
-
