@@ -1,35 +1,26 @@
 let {sha256} = require('./utils')
 
 module.exports = {
-    buildTree: function (data) {
-        if(data.length % 2 != 0){
-            data.push(data[data.length - 1])
+    buildTree: function (transactions) {
+        if(transactions.length % 2 != 0){
+            transactions.push(transactions[transactions.length - 1])
         }
 
-        let nodes = this.generateLeafNodes(data)
+        let nodes = transactions.map(element => this.createLeafNode(element))
 
         while(nodes.length != 1){
             if(nodes.length % 2 != 0){
                 nodes.push(nodes[nodes.length - 1])
             }
 
-            let nodes2 = []
+            let nextLayerOfNodes = []
             for(let i = 0; i < nodes.length; i += 2) {
-                nodes2.push(this.createNode(nodes[i], nodes[i + 1]))
+                nextLayerOfNodes.push(this.createNode(nodes[i], nodes[i + 1]))
             }
 
-            nodes = nodes2
+            nodes = nextLayerOfNodes
         }
         return nodes[0]
-    },
-
-    generateLeafNodes: function (transactions){
-        let leafNodes = []
-
-        transactions.forEach(element => {
-            leafNodes.push(this.createLeafNode(element))
-        })
-        return leafNodes
     },
 
     createLeafNode: function (transaction){

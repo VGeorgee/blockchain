@@ -18,7 +18,8 @@ module.exports = class Block {
             timestamp: Date.now(),
             nonce: 0,
             merkleRoot: 0,
-            difficulty: 0
+            difficulty: 0,
+            previousBlockHash: null
         }
         this.merkleTree = null
         this.headerHash = null
@@ -30,11 +31,11 @@ module.exports = class Block {
     _createHeaderHash() {
         this.headerHash = sha256(this.header)
     }
-    _calculateProofOfWork(diff) {
+    _calculateProofOfWork(difficulty) {
         if(!this.headerHash){
             this._createHeaderHash()
         }
-        while(!isValidProof(this.headerHash, diff || this.header.difficulty)){
+        while(!isValidProof(this.headerHash, difficulty || this.header.difficulty)){
             this.header.nonce++
             this._createHeaderHash()
         }
