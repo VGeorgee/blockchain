@@ -7,7 +7,7 @@ module.exports = {
     sha256: function (data){
         let copy = Object.assign({}, data)
         delete copy.timestamp
-        return module.exports.getHash('sha256', typeof data === 'string' ? data : JSON.stringify(data))
+        return module.exports.getHash('sha256', JSON.stringify(copy))
     },
 
     RIPEMD160: function(data){
