@@ -1,3 +1,4 @@
+let crypto = require('crypto')
 let sha = require('js-sha256').sha256;
 
 module.exports = {
@@ -6,6 +7,10 @@ module.exports = {
         let copy = Object.assign({}, data)
         delete copy.timestamp
         return sha(typeof data === 'string' ? data : JSON.stringify(data))
+    },
+
+    RIPEMD160: function(data){
+        return crypto.createHash('RIPEMD160').update(data).digest('hex')
     },
 
     convertHexToBin: function (hex){
