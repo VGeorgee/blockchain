@@ -3,6 +3,8 @@ let sha = require('js-sha256').sha256;
 module.exports = {
     
     sha256: function (data){
+        let copy = Object.assign({}, data)
+        delete copy.timestamp
         return sha(typeof data === 'string' ? data : JSON.stringify(data))
     },
 
