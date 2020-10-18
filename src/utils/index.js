@@ -1,5 +1,6 @@
 let crypto = require('crypto')
 const bs58 = require('bs58')
+var pem = require('pem')
 
 module.exports = {
     
@@ -32,6 +33,30 @@ module.exports = {
 
     hexToBase58: function (hex) {
         return bs58.encode(Buffer.from(hex, 'hex'))
+    },
+
+    generateKeys: function() {
+        return crypto.generateKeyPairSync('rsa',  {
+            modulusLength: 4096,
+            publicKeyEncoding: {
+              type: 'spki',
+              format: 'pem'
+            },
+            privateKeyEncoding: {
+              type: 'pkcs8',
+              format: 'pem',
+              cipher: 'aes-256-cbc',
+              passphrase: ''
+            }
+          })
+    },
+
+    getPublicKey: function (key) {
+        
+    },
+
+    getPrivateKey: function (key) {
+        
     }
 
 }
