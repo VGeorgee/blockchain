@@ -1,16 +1,20 @@
 let crypto = require('crypto')
-let sha = require('js-sha256').sha256;
+const bs58 = require('bs58')
 
 module.exports = {
     
     sha256: function (data){
         let copy = Object.assign({}, data)
         delete copy.timestamp
-        return sha(typeof data === 'string' ? data : JSON.stringify(data))
+        return module.exports.getHash('sha256', typeof data === 'string' ? data : JSON.stringify(data))
     },
 
     RIPEMD160: function(data){
-        return crypto.createHash('RIPEMD160').update(data).digest('hex')
+        return module.exports.getHash('RIPEMD160', data)
+    },
+
+    getHash: function name(type, data) {
+        return crypto.createHash(type).update(data).digest('hex')
     },
 
     convertHexToBin: function (hex){
@@ -24,6 +28,10 @@ module.exports = {
             final += number
         }
         return final
+    },
+
+    hexToBase58: function (hex) {
+        return bs58.encode(Buffer.from(hex, 'hex'))
     }
 
 }
