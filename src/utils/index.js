@@ -2,6 +2,8 @@ let crypto = require('crypto')
 const bs58 = require('bs58')
 var pem = require('pem')
 
+
+
 module.exports = {
     
     sha256: function (data){
@@ -44,19 +46,20 @@ module.exports = {
             },
             privateKeyEncoding: {
               type: 'pkcs8',
-              format: 'pem',
-              cipher: 'aes-256-cbc',
-              passphrase: ''
+              format: 'pem'
             }
           })
     },
 
-    getPublicKey: function (key) {
-        
-    },
-
-    getPrivateKey: function (key) {
-        
+    
+    isValidProof(proof, difficulty){
+        proof = module.exports.convertHexToBin(proof)
+        for(let i = 0; i < difficulty; i++){
+            if(proof[i] != '0'){
+                return false
+            }
+        }
+        return true
     }
 
 }
