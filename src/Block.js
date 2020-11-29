@@ -28,7 +28,9 @@ module.exports = {
             }
         }
         calculateTransactions(transactions) {
-            this.merkleTree = MerkleTree.buildTree(transactions)
+            let tree = MerkleTree.buildTree(transactions)
+            this.merkleTree = tree.head
+            this.transactionHashes = tree.transactionHashes
             this.header.merkleRoot = this.merkleTree.hash
         }
         _createHeaderHash() {
@@ -63,7 +65,8 @@ module.exports = {
         }
 
         verifyTransaction(transaction){
-            return MerkleTree.verifyTransaction(this.merkleTree, transaction)
+            return this.transactionHashes.includes(sha256(transaction)) 
+                && MerkleTree.verifyTransaction(this.merkleTree, transaction)
         }
 
         getSumOfTransactionsToWallet(wallet){
