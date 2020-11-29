@@ -36,9 +36,8 @@ module.exports = class Wallet {
     }
 
     transact(to, volume, message){
-        let toAddress = typeof to === 'string' ? to : to.address
         return {
-            to: toAddress,
+            to: (typeof to === 'string' ? to : to.address),
             from: this.address,
             volume,
             message,
