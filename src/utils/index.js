@@ -9,6 +9,7 @@ module.exports = {
     sha256: function (data){
         let copy = Object.assign({}, data)
         delete copy.timestamp
+        delete copy.balance
         return module.exports.getHash('sha256', JSON.stringify(copy))
     },
 
