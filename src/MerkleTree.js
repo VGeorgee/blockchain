@@ -6,8 +6,11 @@ module.exports = {
         if(transactions.length % 2 != 0){
             transactions.push(transactions[transactions.length - 1])
         }
-
+        
         let nodes = transactions.map(element => this.createLeafNode(element))
+        let transactionHashes = []
+        nodes.forEach((e) => {transactionHashes.push(e.hash)})
+
 
         while(nodes.length != 1){
             if(nodes.length % 2 != 0){
@@ -21,7 +24,7 @@ module.exports = {
 
             nodes = nextLayerOfNodes
         }
-        return nodes[0]
+        return {head: nodes[0], transactionHashes}
     },
 
     createLeafNode: function (transaction){
@@ -44,7 +47,6 @@ module.exports = {
     },
 
     verifyTransaction: function (tree, transaction) {
-        transaction = typeof transaction === 'string' ? transaction : JSON.stringify(transaction)
         return this.calculateMerklePath(tree, transaction) === tree.hash
     },
 
