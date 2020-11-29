@@ -1,7 +1,8 @@
 let {sha256} = require('./utils')
 
 module.exports = {
-    buildTree: function (transactions) {
+    buildTree: function (inputTransactions) {
+        let transactions = [...inputTransactions]
         if(transactions.length % 2 != 0){
             transactions.push(transactions[transactions.length - 1])
         }
