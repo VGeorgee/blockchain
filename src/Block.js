@@ -1,16 +1,8 @@
-let {sha256, convertHexToBin} = require('./utils') 
+let {sha256, isValidProof} = require('./utils') 
 let MerkleTree = require('./MerkleTree')
+const { buildTransaction } = require('./Transaction')
 
 
-function isValidProof(proof, difficulty){
-    proof = convertHexToBin(proof)
-    for(let i = 0; i < difficulty; i++){
-        if(proof[i] != '0'){
-            return false
-        }
-    }
-    return true
-}
 
 module.exports = {
     Block: class Block {
@@ -19,14 +11,20 @@ module.exports = {
                 timestamp: Date.now(),
                 nonce: 0,
                 merkleRoot: null,
-                difficulty: 0,
+                difficulty: 10,
                 previousBlockHash: null,
                 blockHeight
-            }
+            },
+            
+            this.transactionsIn = {}
+            this.transactionsOut = {}
+            this.transactions = []
+
             this.merkleTree = null
             this.headerHash = null
             if(blockHeight !== 0) {
                 this.calculateTransactions(transactions)
+                this.processTransactions(transactions)
             }
         }
         calculateTransactions(transactions) {
@@ -54,6 +52,16 @@ module.exports = {
         setPreviousHash(hash){
             this.header.previousBlockHash = hash
         }
+        
+        processTransactions(transactions){
+            transactions.forEach(transaction => {
+                this.transactionsIn[transaction.from] = 1
+                this.transactionsOut[transaction.from] = 1
+                this.transactionsOut[transaction.to] = 1
+                this.transactions.push(...buildTransaction(transaction))
+            })
+        }
+
         verifyTransaction(transaction){
             return MerkleTree.verifyTransaction(this.merkleTree, transaction)
         }
@@ -64,6 +72,35 @@ module.exports = {
         genesis.header.previousBlockHash = sha256('genesis' + Date.now())
         genesis.calculateTransactions([{'Genesis': 'Block'}])
         genesis.header.previousBlockHash = 0
+        
+        genesis.transactionsIn = {
+            '2HaZ6oWwS31Se5hRmwS4Mtwes6uT': 1, 
+            'KUWQLTFE7vaYDFjxve8cLC7C1fT': 1, 
+            '2tDwy61MwkurZrXbaqXcgkmUaZFo': 1
+        },
+        genesis.transactionsOut = {
+            '2HaZ6oWwS31Se5hRmwS4Mtwes6uT': 1, 
+            'KUWQLTFE7vaYDFjxve8cLC7C1fT': 1, 
+            '2tDwy61MwkurZrXbaqXcgkmUaZFo': 1
+        },
+
+        genesis.transactions = [
+            {
+                from: "2HaZ6oWwS31Se5hRmwS4Mtwes6uT",
+                to: "2HaZ6oWwS31Se5hRmwS4Mtwes6uT",
+                volume: 1000.0,
+            },
+            {
+                from: "KUWQLTFE7vaYDFjxve8cLC7C1fT",
+                to: "KUWQLTFE7vaYDFjxve8cLC7C1fT",
+                volume: 1000.0,
+            },
+            {
+                from: "2tDwy61MwkurZrXbaqXcgkmUaZFo",
+                to: "2tDwy61MwkurZrXbaqXcgkmUaZFo",
+                volume: 1000.0,
+            }
+        ]
         console.log('Genesis block created');
         return genesis
     }
