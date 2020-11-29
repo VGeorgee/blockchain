@@ -2,20 +2,20 @@ module.exports = {
     buildTransaction(transaction){
         return [
             {
-                from: transaction.from,
                 to: transaction.to,
+                from: transaction.from,
+                volume: transaction.volume,
                 message: transaction.message,
                 publicKey: transaction.publicKey,
-                signature: transaction.signature,
-                volume: transaction.volume
+                signature: transaction.signature
             }, 
             {
-                from: transaction.from,
                 to: transaction.from,
+                from: transaction.from,
+                volume: transaction.balance - transaction.volume,
                 message: transaction.message,
                 publicKey: transaction.publicKey,
-                signature: transaction.signature,
-                volume: transaction.balance - transaction.volume
+                signature: transaction.signature
             }
         ]
     }
